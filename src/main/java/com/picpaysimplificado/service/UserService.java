@@ -35,7 +35,7 @@ public class UserService {
     }
 
     public User createUser(UserDTO dto) {
-        User newUser = new User(dto);
+        User newUser = dto.getUser();
         saveUser(newUser);
         return newUser;
     }

@@ -20,7 +20,7 @@ public class TransactionService {
     @Autowired
     private UserService userService;
 
-    public void createTransaction(TransactionDTO dto) throws Exception {
+    public Transaction createTransaction(TransactionDTO dto) throws Exception {
         User payer = service.findUserById(dto.payerId());
         User payee = service.findUserById(dto.payeeId());
 
@@ -39,5 +39,7 @@ public class TransactionService {
         repository.save(transaction);
         userService.saveUser(payer);
         userService.saveUser(payee);
+
+        return transaction;
     }
 }
