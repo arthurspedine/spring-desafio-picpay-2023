@@ -2,12 +2,15 @@ package com.picpaysimplificado.service;
 
 import com.picpaysimplificado.domain.transaction.Transaction;
 import com.picpaysimplificado.domain.user.User;
+import com.picpaysimplificado.domain.validations.TransactionValidator;
 import com.picpaysimplificado.dto.TransactionDTO;
 import com.picpaysimplificado.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransactionService {
@@ -17,15 +20,19 @@ public class TransactionService {
 
     @Autowired
     private TransactionRepository repository;
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private List<TransactionValidator> validators;
 
     public Transaction createTransaction(TransactionDTO dto) throws Exception {
         User payer = service.findUserById(dto.payerId());
         User payee = service.findUserById(dto.payeeId());
 
-//        validate if payer has enough balance and if is not MERCHANT
-        service.validateTransaction(payer, dto.value());
+//        validate all validators
+        validateTransaction(payer, dto.value());
 
         Transaction transaction = new Transaction();
         transaction.setAmount(dto.value());
@@ -41,5 +48,9 @@ public class TransactionService {
         userService.saveUser(payee);
 
         return transaction;
+    }
+
+    private void validateTransaction(User payer, BigDecimal amount) {
+        validators.forEach(v -> v.validate(payer, amount));
     }
 }
